@@ -17,7 +17,7 @@ class DB:
 
     def __init__(self) -> None:
         """Initialize a new DB instance"""
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=False)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -31,18 +31,33 @@ class DB:
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
-        """Add a new user to the database and return newly created User
-        object"""
+        """Add a new use to the database
+
+        Args:
+            email (str): The email of the user.
+            hashed_password (str): The hashed password of the user.
+        Returns:
+            User: The created User object.
+        """
         new_user = User(email=email, hashed_password=hashed_password)
         self._session.add(new_user)
         self._session.commit()
         return new_user
 
     def find_user_by(self, **kwargs) -> User:
-        """A method that finds a user by keywords argument"""
-        if not kwargs:
-            raise InvalidRequestError
-        data = self._session.query(User).filter_by(**kwargs).first()
-        if not data:
-            raise NoResultFound
-        return data
+        """Find a user by arbitrary keywords arguments
+        Args:
+            **kwargs: The filtering criteria for the query.
+        Returns:
+            User: The first User object found.
+        Raises:
+            NoResultFound: If no User object found.
+            InvalidRequestError: If invalid query argument are provided.
+        """
+        try:
+            user = self._session.query(User).filter_by(**kwargs).one()
+            return user
+        except NoResultFound:
+            raise NoResultFound("No user found matching the critieria.")
+        except Exception as e:
+            raise InvalidRequestError(f"Invalid query arguments: {e}")
