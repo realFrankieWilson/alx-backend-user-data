@@ -67,12 +67,20 @@ class Auth:
         Returns:
             True: if credentials are valid, False otherwise.
         """
-        try:
-            user = self._db.find_user_by(email=email)
-            return bcrypt.checkpw(password.encode("utf-8"),
-                                  user.hashed_password)
-        except NoResultFound:
-            return False
+        user = self._db.find_user_by(email=email)
+
+        if user:
+            hash_password = (
+                user.get("hashed_password")
+                if isinstance(user, dict)
+                else user.hashed_password
+            )
+
+            if isinstance(hash_password, bytes):
+                return bcrypt.checkpw(password.encode("utf-8"), hash_password)
+            else:
+                return False
+        return False
 
     def create_session(self, email: str) -> str:
         """Creates a new session for the user and returns the session ID
