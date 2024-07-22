@@ -15,21 +15,20 @@ def message():
 
 
 @app.route("/users", methods=["POST"])
-def register_user():
+def user():
     """A user function that implements the POST /users route"""
     email = request.form.get("email")
     password = request.form.get("password")
 
     # Imput validations
     if not email or not password:
-        messge = "email and password are required"
-        return jsonify({"message": message}), 400
+        return jsonify({"message": "email and password are required"}), 400
 
     try:
         # Attempt to register the user
         user = AUTH.register_user(email=email, password=password)
-        return jsonify({"email": user.email, "message": "user created"}), 201
-    except ValueError:
+        return jsonify({"email": user.email, "message": "user created"}), 200
+    except Exception as e:
         # Handle the case where user is not created successfully
         return jsonify({"message": "email already registered"}), 400
 
