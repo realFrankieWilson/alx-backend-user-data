@@ -37,19 +37,17 @@ def user():
 def login():
     """Handles user login"""
     email = request.form.get("email")
-    password = request.form.get("email")
+    password = request.form.get("password")
+    authenticated_user = AUTH.valid_login(email, password)
 
-    if not AUTH.valid_login(email, password):
-        abort(401)  # Unauthorized login attempt
-
+    if not authenticated_user:
+        abort(401)
     # Create a session for the user.
     session_id = AUTH.create_session(email)
-
-    # Set session ID as cookie
-    res = jsonify({"email": email, "message": "logged in"})
+    status = {"email": email, "message": "logged in"}
+    res = jsonify(status)
     res.set_cookie("session_id", session_id)
-
-    return res, 200
+    return res
 
 
 if __name__ == "__main__":
