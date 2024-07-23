@@ -62,7 +62,8 @@ def log_out(session_id: str) -> None:
 
 def reset_password_token(email: str) -> str:
     """Resets password token"""
-    res = requests.post(f"{BASE_URL}/reset_password_token", data={"email": email})
+    res = requests.post(f"{BASE_URL}/reset_password_token",
+                        data={"email": email})
     assert res.status_code == 200
     return res.json.get("reset_token")
 
@@ -70,7 +71,8 @@ def reset_password_token(email: str) -> str:
 def update_password(email: str, reset_token: str, new_password: str) -> None:
     res = requests.put(
         f"{BASE_URL}/reset_password",
-        data={"email": email, "reset_token": reset_token, "new_password": new_password},
+        data={"email": email, "reset_token": reset_token,
+              "new_password": new_password},
     )
     assert res.status_code == 200
 
