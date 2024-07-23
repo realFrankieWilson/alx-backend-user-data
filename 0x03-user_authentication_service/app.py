@@ -54,21 +54,11 @@ def login():
 def logout():
     """Logout a user by destroying their session."""
     session_id = request.cookies.get("session_id")
-
-    if not session_id:
-        return jsonify({"message": "session_id not provided"}), 400
-
-    user = None
-    try:
-        user = request._db.find_user_by(session_id=session_id)
-    except Exception:
-        return jsonify({"message": "user not found"}), 403
-
-    if user:
-        AUTH.destroy_session(user.id)
-        return redirect("/")
-    else:
-        return jsonify({"message": "user not found"}), 403
+    user = AUTH.get_user_from_session_id(session_id)
+    if session_id is None or user is None:
+        abort(403)
+    AUTH.destroy_session(user.id)
+    return redirect("/")
 
 
 @app.route("/profile", methods=["GET"])
